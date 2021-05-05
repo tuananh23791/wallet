@@ -47,27 +47,14 @@ class FireBaseDatabaseManager {
     Get.find<HomeScreenController>().listExpenseOfMonth.value.clear();
     List<dynamic> _listData = json.decode(value);
     for (var data in _listData) {
-      print("data ne::::::::$data");
-      Expense expense = Expense.fromJson(data);
-      print("expense ne::::::::${expense.content}");
-      Get.find<HomeScreenController>().setExpense(expense.total);
-      Get.find<HomeScreenController>().listExpenseOfMonth.value.add(expense);
+      if(data != null){
+        print("data ne::::::::$data");
+        Expense expense = Expense.fromJson(data);
+        print("expense ne::::::::${expense.content}");
+        Get.find<HomeScreenController>().setExpense(expense.total);
+        Get.find<HomeScreenController>().listExpenseOfMonth.value.add(expense);
+      }
     }
-
-    // Map<String, dynamic> decoded = json.decode(value);
-    // Get.find<HomeScreenController>().totalAmountExpenseOfMonth.value = 0;
-    // Get.find<HomeScreenController>().listExpenseOfMonth.value.clear();
-    // for (var key in decoded.keys) {
-    //   print("key ne::::::::$key");
-    //   List<dynamic> _listData = json.decode(decoded[key]);
-    //   for (var data in _listData) {
-    //     print("data ne::::::::$data");
-    //     Expense expense = Expense.fromJson(data);
-    //     print("expense ne::::::::${expense.content}");
-    //     Get.find<HomeScreenController>().setExpense(expense.total);
-    //     Get.find<HomeScreenController>().listExpenseOfMonth.value.add(expense);
-    //   }
-    // }
   }
 
   _listenerExpense(String month) {
@@ -139,13 +126,15 @@ class FireBaseDatabaseManager {
       "total_salary": InfoOfMonth.currentInfoOfMonth.totalSalary,
       "category": json.encode(InfoOfMonth.currentInfoOfMonth.category)
     });
+    createExpense(null);
   }
 
   updateInfoOfMonth(String dateTime) {
+    print("updateInfoOfMonth ne::::::::::::::$dateTime");
     _databaseReference.child("info_$dateTime").update({
-      "target_save_money": 20000000,
-      "total_salary": 40000000,
-      "category": "tiệc,ăn uống"
+      "target_save_money": InfoOfMonth.currentInfoOfMonth.targetSaveMoney,
+      "total_salary": InfoOfMonth.currentInfoOfMonth.totalSalary,
+      "category": json.encode(InfoOfMonth.currentInfoOfMonth.category)
     });
   }
 

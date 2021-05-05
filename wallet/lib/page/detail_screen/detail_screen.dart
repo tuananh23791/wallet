@@ -16,8 +16,9 @@ class DetailScreen extends StatefulWidget {
 
 class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
   List<String> _listCategory = <String>[];
-  Map<int, List<Expense>> _mapData = Map<int, List<Expense>>();
+  Map<String, List<Expense>> _mapData = Map<String, List<Expense>>();
   String _value = "";
+  var isSelectedDay = false;
 
   @override
   String appBarTitle() {
@@ -41,11 +42,13 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _tabBar(),
             listCategory(),
             Column(
-              children: _mapData.values
-                  .map((listExpense) => ItemExpense(
-                        listExpense: listExpense,
+              children: _mapData.keys
+                  .map((key) => ItemExpense(
+                        listExpense: _mapData[key],
+                        title: isSelectedDay ? "Ngày $key" : "",
                       ))
                   .toList(),
             )
@@ -81,14 +84,24 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
     _mapData.clear();
     var _listAllExpenseOfMonth =
         Get.find<HomeScreenController>().listExpenseOfMonth.value;
+    if (_listAllExpenseOfMonth == null || _listAllExpenseOfMonth.length == 0)
+      return;
     for (Expense expense in _listAllExpenseOfMonth) {
-      int day = int.parse(Utils().getDayWithString(expense.date));
-      if (_mapData[day] == null) {
-        _mapData[day] = <Expense>[];
+      String key = "";
+      if (isSelectedDay)
+        key = Utils().getDayWithString(expense.date);
+      else
+        key = _value;
+
+      if (_mapData[key] == null) {
+        _mapData[key] = <Expense>[];
       }
 
-      if (_value == "Tất cả" || _value == expense.category)
-        _mapData[day].add(expense);
+      if (isSelectedDay) if (_value == "Tất cả" || _value == expense.category) {
+        _mapData[key].add(expense);
+      } else if (_value == expense.category) {
+        _mapData[key].add(expense);
+      }
     }
     setState(() {});
   }
@@ -97,5 +110,30 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
   bool isCanGoBack() {
     // TODO: implement isCanGoBack
     return true;
+  }
+
+  Widget _tabBar() {
+    return Center(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          GestureDetector(
+              onTap: () {},
+              child: Expanded(
+                  child: Container(
+                height: 50,
+                child: Center(child: Text("Ngày")),
+              ))),
+          GestureDetector(
+              onTap: () {},
+              child: Expanded(
+                  child: Container(
+                height: 50,
+                child: Center(child: Text("Tiêu Đề")),
+              ))),
+        ],
+      ),
+    );
   }
 }

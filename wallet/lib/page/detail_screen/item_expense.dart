@@ -6,10 +6,11 @@ import 'package:wallet/utils/utils.dart';
 
 class ItemExpense extends StatefulWidget {
   final List<Expense> listExpense;
+  final String title;
 
   const ItemExpense({
     Key key,
-    this.listExpense,
+    this.listExpense, this.title,
   }) : super(key: key);
 
   @override
@@ -39,7 +40,7 @@ class ItemExpenseState extends State<ItemExpense> {
                 accentColor: Colors.white, unselectedWidgetColor: Colors.white),
             child: ExpansionTile(
               title: Text(
-                "Ngày ${Utils().getDayWithString(widget.listExpense[0].date)} (đã chi: ${Utils().formatMoneyWithInt(_totalAmount())})",
+                widget.title == null?"null" : "${widget.title} (đã chi: ${Utils().formatMoneyWithInt(_totalAmount())})",
                 style: defaultTextStyle,
               ),
               // initiallyExpanded: true,

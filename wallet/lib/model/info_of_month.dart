@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'category.dart';
 
 class InfoOfMonth {
@@ -8,12 +10,14 @@ class InfoOfMonth {
 
   InfoOfMonth({this.targetSaveMoney, this.totalSalary, this.category});
 
-  InfoOfMonth.fromJson(Map<String, dynamic> json) {
-    targetSaveMoney = json['target_save_money'];
-    totalSalary = json['total_salary'];
-    if (json['category'] != null) {
+  InfoOfMonth.fromJson(Map<String, dynamic> mapJson) {
+    targetSaveMoney = mapJson['target_save_money'];
+    totalSalary = mapJson['total_salary'];
+    if (mapJson['category'] != null) {
       category = <Category>[];
-      json['category'].forEach((v) {
+      print("debug ne:::::::${mapJson['category']}");
+      json.decode(mapJson['category']).forEach((v) {
+        print("data debug ne:::::::$v");
         category.add(new Category.fromJson(v));
       });
     }

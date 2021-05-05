@@ -8,6 +8,13 @@ import 'package:wallet/utils/strings.dart';
 import 'package:wallet/utils/utils.dart';
 import 'package:wallet/widgets/custom_button.dart';
 import 'package:wallet/widgets/custom_textfield.dart';
+import 'package:wallet/widgets/dialog_add_category.dart';
+
+import '../../firebase/firebase_database_manager.dart';
+import '../../model/category.dart';
+import '../../model/category.dart';
+import '../../model/info_of_month.dart';
+import '../../utils/utils.dart';
 
 class MonthlyWidget extends StatelessWidget {
   final oCcy = new NumberFormat("#,###", "en_US");
@@ -91,38 +98,9 @@ class MonthlyWidget extends StatelessWidget {
           height: 70,
           width: 200,
           text: "Tạo tiêu đề",
-          onClick: _showDialogAddCategory,
+          onClick: showDialogAddCategory,
         ),
       ],
     );
-  }
-
-  TextEditingController _categoryController = TextEditingController();
-  TextEditingController _moneyController = TextEditingController();
-  _showDialogAddCategory() {
-    Get.defaultDialog(
-        title: "Tạo tiêu đề",
-        content: Column(
-          children: [
-            CustomTextField(
-              labelText: "Tên tiêu đề",
-              width: 300,
-              height: 50,
-              textEditingController: _categoryController,
-            ),
-            SizedBox(
-              height: 30,
-            ),
-            CustomTextField(
-              labelText: "Số tiền",
-              width: 300,
-              height: 50,
-              textInputType: TextInputType.number,
-              textEditingController: _moneyController,
-            )
-          ],
-        ),
-        textConfirm: "Đồng ý",
-        textCancel: "Hủy");
   }
 }
