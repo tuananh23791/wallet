@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wallet/model/category.dart';
 import 'package:wallet/model/expense.dart';
+import 'package:wallet/model/info_of_month.dart';
 import 'package:wallet/page/home_screen/home_screen_controller.dart';
 import 'package:wallet/struct/base_stateful_widget.dart';
 import 'package:wallet/utils/my_style.dart';
@@ -38,34 +40,30 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
   @override
   Widget buildWidget(BuildContext context) {
     return Container(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _tabBar(),
-            listCategory(),
-            isSelectedDay
-                ? Column(
-                    children: _mapData.keys
-                        .map((key) => ItemExpense(
-                              listExpense: _mapData[key],
-                              title: isSelectedDay ? "Ngày $key" : key,
-                              isCategory: !isSelectedDay,
-                            ))
-                        .toList(),
-                  )
-                : Column(
-                    children: _mapData.keys
-                        .map((key) => ItemExpense(
-                              listExpense: _mapData[key],
-                              title: isSelectedDay ? "Ngày $key" : key,
-                              isCategory: !isSelectedDay,
-                            ))
-                        .toList(),
-                  )
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _tabBar(),
+          listCategory(),
+          test(),
+        ],
       ),
+    );
+  }
+
+  Widget test() {
+    return Expanded(
+      child: ListView.builder(
+          itemCount: _mapData.length,
+          shrinkWrap: true,
+          itemBuilder: (context, i) {
+            String key = _mapData.keys.elementAt(i);
+            return ItemExpense(
+              listExpense: _mapData[key],
+              title: isSelectedDay ? "Ngày $key" : key,
+              isCategory: !isSelectedDay,
+            );
+          }),
     );
   }
 
@@ -95,8 +93,31 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
     _mapData.clear();
     var _listAllExpenseOfMonth =
         Get.find<HomeScreenController>().listExpenseOfMonth.value;
-    if (_listAllExpenseOfMonth == null || _listAllExpenseOfMonth.length == 0)
+    if (!isSelectedDay) {
+      for (Category category in InfoOfMonth.currentInfoOfMonth.category) {
+        print("category:::::::::${category.name}");
+        String key = category.name;
+        if (_value == "Tất cả" || _value == key) {
+          _mapData[key] = <Expense>[];
+        }
+
+        if (_listAllExpenseOfMonth != null &&
+            _listAllExpenseOfMonth.length > 0) {
+          for (Expense expense in _listAllExpenseOfMonth) {
+            if (expense.category == key) {
+              if (_value == "Tất cả" || _value == key) {
+                _mapData[key].add(expense);
+              }
+            }
+          }
+        }
+      }
+      setState(() {});
+    }
+    if (_listAllExpenseOfMonth == null || _listAllExpenseOfMonth.length == 0) {
+      setState(() {});
       return;
+    }
     for (Expense expense in _listAllExpenseOfMonth) {
       String key = "";
       if (isSelectedDay)

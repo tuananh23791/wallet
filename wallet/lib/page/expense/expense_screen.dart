@@ -182,6 +182,9 @@ class _ExpenseScreenState extends BaseStatefulWidgetState<ExpenseScreen> {
   Map<String, int> mapAmountExpense = Map<String, int>();
   _calculateExpenseAmount() {
     mapAmountExpense.clear();
+    if (Get.find<HomeScreenController>().listExpenseOfMonth.value == null) {
+      return;
+    }
     for (Expense expense
         in Get.find<HomeScreenController>().listExpenseOfMonth) {
       if (mapAmountExpense[expense.category] == null)

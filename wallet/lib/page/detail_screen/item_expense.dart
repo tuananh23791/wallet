@@ -39,37 +39,35 @@ class ItemExpenseState extends State<ItemExpense> {
   // }
 
   Widget _groupItem() {
-    return widget.listExpense.length > 0
-        ? Theme(
-            data: Theme.of(context).copyWith(
-              dividerColor: Colors.yellow,
+    return Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.yellow,
+        ),
+        child: Stack(
+          children: [
+            Container(
+              height: 70,
+              color: _getColorItem(),
             ),
-            child: Stack(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 70,
-                    color: _getColorItem(),
-                  ),
-                ),
-                ExpansionTile(
-                  title: Text(
-                    widget.title == null
-                        ? "null"
-                        : "${widget.title} (đã chi: ${Utils().formatMoneyWithInt(_totalAmount())}) ${_contentRestAmount()}",
-                    style: defaultTextStyle.copyWith(
-                        fontSize: 16,
-                        color: widget.isCategory ? Colors.white : Colors.black),
-                  ),
-                  // initiallyExpanded: true,
-                  collapsedBackgroundColor: Colors.transparent,
-                  children: widget.listExpense
+            ExpansionTile(
+              title: Text(
+                widget.title == null
+                    ? "null"
+                    : "${widget.title} (đã chi: ${Utils().formatMoneyWithInt(_totalAmount())}) ${_contentRestAmount()}",
+                style: defaultTextStyle.copyWith(
+                    fontSize: 16,
+                    color: widget.isCategory ? Colors.white : Colors.black),
+              ),
+              // initiallyExpanded: true,
+              collapsedBackgroundColor: Colors.transparent,
+              children: widget.listExpense.length > 0
+                  ? widget.listExpense
                       .map((expense) => _itemExpense(expense))
-                      .toList(),
-                ),
-              ],
-            ))
-        : SizedBox();
+                      .toList()
+                  : [SizedBox()],
+            ),
+          ],
+        ));
   }
 
   Color _getColorItem() {

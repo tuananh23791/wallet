@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:wallet/model/category.dart';
 import 'package:wallet/model/info_of_month.dart';
+import 'package:wallet/page/home_screen/home_screen_controller.dart';
 
 class Utils {
   static final Utils _singleton = Utils._internal();
@@ -55,8 +56,18 @@ class Utils {
   }
 
   String getMonth() {
+    if (InfoOfMonth.currentInfoOfMonth != null &&
+        InfoOfMonth.currentInfoOfMonth.month.isNotEmpty) {
+      Get.find<HomeScreenController>().month.value =
+          InfoOfMonth.currentInfoOfMonth.month;
+      print(
+          "getMonth currentInfoOfMonth::::::::::::${InfoOfMonth.currentInfoOfMonth.month}");
+      return InfoOfMonth.currentInfoOfMonth.month;
+    }
     var df = DateFormat("MM-yyyy");
     String dateTime = df.format(DateTime.now());
+    Get.find<HomeScreenController>().month.value = dateTime;
+    print("getMonth dateTime::::::::::::$dateTime");
     return dateTime;
   }
 
@@ -69,12 +80,12 @@ class Utils {
   }
 
   String formatMoneyWithString(String value) {
-    final oCcy = new NumberFormat("#,### đ", "en_US");
+    final oCcy = new NumberFormat("#,###", "en_US");
     return oCcy.format(value);
   }
 
   String formatMoneyWithInt(int value) {
-    final oCcy = new NumberFormat("#,### đ", "en_US");
+    final oCcy = new NumberFormat("#,###", "en_US");
     return oCcy.format(value);
   }
 
@@ -85,5 +96,15 @@ class Utils {
     }
 
     return _listNameCategory;
+  }
+
+  bool isCurrentDate() {
+    var df = DateFormat("MM-yyyy");
+    String dateTime = df.format(DateTime.now());
+    print(
+        "dateTime:::::::$dateTime --- getMonth::::::${Get.find<HomeScreenController>().month.value}");
+    if (dateTime != Get.find<HomeScreenController>().month.value) return false;
+
+    return true;
   }
 }

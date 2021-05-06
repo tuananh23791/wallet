@@ -5,6 +5,7 @@ import 'category.dart';
 class InfoOfMonth {
   int targetSaveMoney;
   int totalSalary;
+  String month = "";
   List<Category> category;
   static InfoOfMonth currentInfoOfMonth;
 
@@ -15,9 +16,7 @@ class InfoOfMonth {
     totalSalary = mapJson['total_salary'];
     if (mapJson['category'] != null) {
       category = <Category>[];
-      print("debug ne:::::::${mapJson['category']}");
       json.decode(mapJson['category']).forEach((v) {
-        print("data debug ne:::::::$v");
         category.add(new Category.fromJson(v));
       });
     }

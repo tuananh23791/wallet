@@ -41,7 +41,8 @@ class MonthlyWidget extends StatelessWidget {
                 showDialogUpdateMoney(isSalary: true);
               },
               child: Text(
-                "${oCcy.format(Get.find<HomeScreenController>().totalSalary.value)} đ",
+                Utils().formatMoneyWithInt(
+                    Get.find<HomeScreenController>().totalSalary.value),
                 style: moneyTextStyle,
                 textAlign: TextAlign.center,
               ),
@@ -54,7 +55,9 @@ class MonthlyWidget extends StatelessWidget {
           style: defaultTextStyle,
         ),
         Obx(() => Text(
-              "${oCcy.format(Get.find<HomeScreenController>().totalAmountExpenseOfMonth.value)} đ",
+              Utils().formatMoneyWithInt(Get.find<HomeScreenController>()
+                  .totalAmountExpenseOfMonth
+                  .value),
               style: moneyTextStyle,
               textAlign: TextAlign.center,
             )),
@@ -76,7 +79,8 @@ class MonthlyWidget extends StatelessWidget {
                 showDialogUpdateMoney(isSalary: false);
               },
               child: Text(
-                "${oCcy.format(Get.find<HomeScreenController>().targetSaveMoney.value)} đ",
+                Utils().formatMoneyWithInt(
+                    Get.find<HomeScreenController>().targetSaveMoney.value),
                 style: moneyTextStyle,
                 textAlign: TextAlign.center,
               ),
@@ -90,7 +94,9 @@ class MonthlyWidget extends StatelessWidget {
           textAlign: TextAlign.center,
         ),
         Obx(() => Text(
-              "${oCcy.format(Get.find<HomeScreenController>().totalSaveMoney.value)} đ",
+              Utils().formatMoneyWithInt(
+                  Get.find<HomeScreenController>().totalSaveMoney.value -
+                      Get.find<HomeScreenController>().targetSaveMoney.value),
               style: moneyTextStyle,
               textAlign: TextAlign.center,
             )),
@@ -114,6 +120,15 @@ class MonthlyWidget extends StatelessWidget {
           width: 200,
           text: "Tạo tiêu đề",
           onClick: showDialogAddCategory,
+        ),
+        SizedBox(
+          height: 30,
+        ),
+        CustomButton(
+          height: 70,
+          width: 200,
+          text: "Sửa tiêu đề",
+          onClick: showDialogEditCategory,
         ),
       ],
     );

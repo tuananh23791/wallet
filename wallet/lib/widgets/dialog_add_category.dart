@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:wallet/page/home_screen/home_screen_controller.dart';
+import 'package:wallet/utils/my_style.dart';
 
 import '../firebase/firebase_database_manager.dart';
 import '../model/category.dart';
@@ -41,6 +43,65 @@ showDialogAddCategory() {
       });
 }
 
+showDialogEditCategory() {
+  TextEditingController _moneyController = TextEditingController();
+  String _value = Utils().getListNameCategory()[0];
+  _moneyController.text = "${_moneyOfCategory(_value)}";
+  Get.defaultDialog(
+      title: "Sửa tiêu đề",
+      content: Column(
+        children: [
+          _listCategory(onSelected: (value) {
+            _value = _value;
+            _moneyController.text = "${_moneyOfCategory(value)}";
+          }),
+          SizedBox(
+            height: 30,
+          ),
+          CustomTextField(
+            labelText: "Số tiền",
+            width: 300,
+            height: 50,
+            textInputType: TextInputType.text,
+            textEditingController: _moneyController,
+          )
+        ],
+      ),
+      textConfirm: "Đồng ý",
+      textCancel: "Hủy",
+      onConfirm: () {
+        _updateCategory(_value, int.parse(_moneyController.text));
+        Get.back();
+      });
+}
+
+Widget _listCategory({Function(String) onSelected}) {
+  var _value = Utils().getListNameCategory()[0];
+  return DropdownButton<String>(
+    items: Utils().getListNameCategory().map((String value) {
+      return DropdownMenuItem<String>(
+        value: value,
+        child: new Text(
+          value,
+          style: defaultTextStyle,
+        ),
+      );
+    }).toList(),
+    value: _value,
+    onChanged: (value) {
+      onSelected(value);
+    },
+  );
+}
+
+showDialogCantEdit() {
+  if (Get.isDialogOpen) Get.back();
+  Get.defaultDialog(
+      title: "Lỗi",
+      content: Center(child: Text("Không thể chỉnh sửa tháng khác được")),
+      textConfirm: "OK");
+}
+
 showDialogUpdateMoney({bool isSalary = false}) {
   int salary = isSalary
       ? InfoOfMonth.currentInfoOfMonth.totalSalary
@@ -71,6 +132,10 @@ showDialogUpdateMoney({bool isSalary = false}) {
 }
 
 _updateMoney(int money, {bool isSalary}) {
+  if (!Utils().isCurrentDate()) {
+    showDialogCantEdit();
+    return;
+  }
   if (isSalary)
     InfoOfMonth.currentInfoOfMonth.totalSalary = money;
   else
@@ -79,9 +144,39 @@ _updateMoney(int money, {bool isSalary}) {
 }
 
 _createCategory(String name, int money) {
+  if (!Utils().isCurrentDate()) {
+    showDialogCantEdit();
+    return;
+  }
   Category category = Category();
   category.name = name;
   category.money = money;
   InfoOfMonth.currentInfoOfMonth.category.add(category);
   FireBaseDatabaseManager().updateInfoOfMonth(Utils().getMonth());
+}
+
+_updateCategory(String name, int money) {
+  if (!Utils().isCurrentDate()) {
+    showDialogCantEdit();
+    return;
+  }
+  for (Category category in InfoOfMonth.currentInfoOfMonth.category) {
+    if (category.name == name) {
+      category.money = money;
+      break;
+    }
+  }
+  FireBaseDatabaseManager()
+      .updateInfoOfMonth(Get.find<HomeScreenController>().month.value);
+}
+
+int _moneyOfCategory(String name) {
+  int money = 0;
+  for (Category category in InfoOfMonth.currentInfoOfMonth.category) {
+    if (category.name == name) {
+      money = category.money;
+      break;
+    }
+  }
+  return money;
 }

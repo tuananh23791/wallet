@@ -8,6 +8,7 @@ import 'package:wallet/model/expense.dart';
 import 'package:wallet/model/info_of_month.dart';
 import 'package:wallet/page/home_screen/home_screen_controller.dart';
 import 'package:wallet/utils/utils.dart';
+import 'package:wallet/widgets/dialog_add_category.dart';
 
 class FireBaseDatabaseManager {
   final _databaseReference = FirebaseDatabase.instance.reference();
@@ -25,6 +26,7 @@ class FireBaseDatabaseManager {
   get databaseReference => _databaseReference;
 
   loadDataWithMonth(String month) {
+    print("loadDataWithMonth ne::::::::$month");
     _getLastInfoOfMonth(month);
   }
 
@@ -34,7 +36,10 @@ class FireBaseDatabaseManager {
       String value = json.encode(snapshot.value);
       print("value ne::::::::$value");
       if (value == "null") {
-        Get.find<HomeScreenController>().setExpense(0);
+        InfoOfMonth.currentInfoOfMonth?.month = month;
+        Get.find<HomeScreenController>().totalAmountExpenseOfMonth.value = 0;
+        Get.find<HomeScreenController>().totalSaveMoney.value =
+            Get.find<HomeScreenController>().totalSalary.value;
         return;
       }
       _listenerExpense(month);
@@ -66,13 +71,16 @@ class FireBaseDatabaseManager {
     });
   }
 
-  _listenInfoOfMonth() {
-    print("_listenInfoOfMonth:::::::::::::::::::::info_${Utils().getMonth()}");
-    databaseReference
-        .child("info_${Utils().getMonth()}")
-        .onValue
-        .listen((Event event) {
+  _listenInfoOfMonth(String month) async {
+    print("_listenInfoOfMonth:::::::::::::::::::::info_$month");
+    databaseReference.child("info_$month").onValue.listen((Event event) {
       String data = json.encode(event.snapshot.value);
+      print("_listenInfoOfMonth data:::::::::::::::::::::$data");
+      if (data == "null") {
+        Get.find<HomeScreenController>().clearData();
+        InfoOfMonth.currentInfoOfMonth?.month = month;
+        return;
+      }
       _readDataInfoOfMonth(data);
       Get.find<HomeScreenController>().totalSaveMoney.value =
           Get.find<HomeScreenController>().totalSalary.value -
@@ -81,6 +89,10 @@ class FireBaseDatabaseManager {
   }
 
   createExpense(Expense expense) {
+    if (!Utils().isCurrentDate()) {
+      showDialogCantEdit();
+      return;
+    }
     databaseReference
         .child("listMonth")
         .once()
@@ -112,6 +124,10 @@ class FireBaseDatabaseManager {
   }
 
   _createMonth(Expense expense, String dateTime) {
+    if (!Utils().isCurrentDate()) {
+      showDialogCantEdit();
+      return;
+    }
     var df3 = DateFormat("dd");
     Get.find<HomeScreenController>().listExpenseOfMonth.value.add(expense);
     String data =
@@ -124,6 +140,10 @@ class FireBaseDatabaseManager {
   }
 
   _updateExpenseOfMonth(Expense expense, String dateTime) {
+    if (!Utils().isCurrentDate()) {
+      showDialogCantEdit();
+      return;
+    }
     var df3 = DateFormat("dd");
     Get.find<HomeScreenController>().listExpenseOfMonth.value.add(expense);
     String data =
@@ -135,7 +155,15 @@ class FireBaseDatabaseManager {
   }
 
   _createInfoOfMonth(String dateTime) {
+    if (!Utils().isCurrentDate()) {
+      showDialogCantEdit();
+      return;
+    }
     print("_createInfoOfMonth::::::$dateTime");
+    InfoOfMonth.currentInfoOfMonth = InfoOfMonth();
+    InfoOfMonth.currentInfoOfMonth.category = _listDefaultCategory();
+    InfoOfMonth.currentInfoOfMonth.totalSalary = 40000000;
+    InfoOfMonth.currentInfoOfMonth.targetSaveMoney = 20000000;
     _databaseReference.child("info_$dateTime").set({
       "target_save_money": InfoOfMonth.currentInfoOfMonth.targetSaveMoney,
       "total_salary": InfoOfMonth.currentInfoOfMonth.totalSalary,
@@ -145,6 +173,10 @@ class FireBaseDatabaseManager {
   }
 
   updateInfoOfMonth(String dateTime) {
+    if (!Utils().isCurrentDate()) {
+      showDialogCantEdit();
+      return;
+    }
     print("updateInfoOfMonth ne::::::::::::::$dateTime");
     _databaseReference.child("info_$dateTime").update({
       "target_save_money": InfoOfMonth.currentInfoOfMonth.targetSaveMoney,
@@ -155,6 +187,7 @@ class FireBaseDatabaseManager {
 
   _getLastInfoOfMonth(String month) {
     print("getLastInfoOfMonth ne::::::::::::::");
+    Get.find<HomeScreenController>().totalAmountExpenseOfMonth.value = 0;
     databaseReference
         .child("listMonth")
         .once()
@@ -169,12 +202,15 @@ class FireBaseDatabaseManager {
         String data = json.encode(snapshot.value);
         print(
             "getLastInfoOfMonth ne::::::::::::::$data - key:::::::::::::info_${listDateTime[listDateTime.length - 1]}");
-        _listenInfoOfMonth();
         var df = DateFormat("MM-yyyy");
+        int test = df.parse(month).millisecond;
+        print(
+            "month::::::::::::$month ----- test:::::::::::::$test ----- now:::::::::::${DateTime.now().millisecond}");
         String dateTime = df.format(DateTime.now());
-        if (!value.contains(dateTime)) {
-          _createInfoOfMonth(dateTime);
+        if (!value.contains(month) && Utils().isCurrentDate()) {
+          _createInfoOfMonth(month);
         }
+        await _listenInfoOfMonth(month);
         _loadDataWithMonth(month);
       });
     });
