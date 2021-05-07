@@ -21,4 +21,9 @@ class Expense {
     data['category'] = this.category;
     return data;
   }
+
+  @override
+  String toString() {
+    return 'Expense{content: $content, total: $total, date: $date, category: $category}';
+  }
 }

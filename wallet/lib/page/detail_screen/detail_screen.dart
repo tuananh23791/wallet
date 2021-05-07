@@ -106,6 +106,7 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
           for (Expense expense in _listAllExpenseOfMonth) {
             if (expense.category == key) {
               if (_value == "Tất cả" || _value == key) {
+                print("key:::::::::$key --- expense${expense.toString()}");
                 _mapData[key].add(expense);
               }
             }
@@ -113,6 +114,7 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
         }
       }
       setState(() {});
+      return;
     }
     if (_listAllExpenseOfMonth == null || _listAllExpenseOfMonth.length == 0) {
       setState(() {});
