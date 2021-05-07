@@ -18,7 +18,7 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
   List<String> _listCategory = <String>[];
   Map<String, List<Expense>> _mapData = Map<String, List<Expense>>();
   String _value = "";
-  var isSelectedDay = false;
+  var isSelectedDay = true;
 
   @override
   String appBarTitle() {
@@ -44,14 +44,25 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
           children: [
             _tabBar(),
             listCategory(),
-            Column(
-              children: _mapData.keys
-                  .map((key) => ItemExpense(
-                        listExpense: _mapData[key],
-                        title: isSelectedDay ? "Ngày $key" : "",
-                      ))
-                  .toList(),
-            )
+            isSelectedDay
+                ? Column(
+                    children: _mapData.keys
+                        .map((key) => ItemExpense(
+                              listExpense: _mapData[key],
+                              title: isSelectedDay ? "Ngày $key" : key,
+                              isCategory: !isSelectedDay,
+                            ))
+                        .toList(),
+                  )
+                : Column(
+                    children: _mapData.keys
+                        .map((key) => ItemExpense(
+                              listExpense: _mapData[key],
+                              title: isSelectedDay ? "Ngày $key" : key,
+                              isCategory: !isSelectedDay,
+                            ))
+                        .toList(),
+                  )
           ],
         ),
       ),
@@ -91,16 +102,21 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
       if (isSelectedDay)
         key = Utils().getDayWithString(expense.date);
       else
-        key = _value;
+        key = expense.category;
 
       if (_mapData[key] == null) {
         _mapData[key] = <Expense>[];
       }
 
-      if (isSelectedDay) if (_value == "Tất cả" || _value == expense.category) {
-        _mapData[key].add(expense);
-      } else if (_value == expense.category) {
-        _mapData[key].add(expense);
+      if (isSelectedDay) {
+        if (_value == "Tất cả" || _value == expense.category) {
+          _mapData[key].add(expense);
+        }
+      } else {
+        print("key:::::::$key");
+        if (_value == "Tất cả" || _value == expense.category) {
+          _mapData[key].add(expense);
+        }
       }
     }
     setState(() {});
@@ -113,27 +129,39 @@ class _DetailScreenState extends BaseStatefulWidgetState<DetailScreen> {
   }
 
   Widget _tabBar() {
-    return Center(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          GestureDetector(
-              onTap: () {},
-              child: Expanded(
-                  child: Container(
-                height: 50,
-                child: Center(child: Text("Ngày")),
-              ))),
-          GestureDetector(
-              onTap: () {},
-              child: Expanded(
-                  child: Container(
-                height: 50,
-                child: Center(child: Text("Tiêu Đề")),
-              ))),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Expanded(
+            child: GestureDetector(
+          onTap: () {
+            if (!isSelectedDay) {
+              isSelectedDay = true;
+              _filterData();
+            }
+          },
+          child: Container(
+            height: 50,
+            color: isSelectedDay ? Colors.blueGrey : Colors.white,
+            child: Center(child: Text("Ngày")),
+          ),
+        )),
+        Expanded(
+            child: GestureDetector(
+          onTap: () {
+            if (isSelectedDay) {
+              isSelectedDay = false;
+              _filterData();
+            }
+          },
+          child: Container(
+            color: isSelectedDay ? Colors.white : Colors.blueGrey,
+            height: 50,
+            child: Align(alignment: Alignment.center, child: Text("Tiêu Đề")),
+          ),
+        )),
+      ],
     );
   }
 }

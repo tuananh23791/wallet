@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:wallet/model/category.dart';
 import 'package:wallet/model/expense.dart';
+import 'package:wallet/model/info_of_month.dart';
 import 'package:wallet/utils/my_style.dart';
 import 'package:wallet/utils/utils.dart';
 
 class ItemExpense extends StatefulWidget {
   final List<Expense> listExpense;
   final String title;
+  final bool isCategory;
 
   const ItemExpense({
     Key key,
-    this.listExpense, this.title,
+    this.listExpense,
+    this.title,
+    this.isCategory = false,
   }) : super(key: key);
 
   @override
@@ -29,28 +34,85 @@ class ItemExpenseState extends State<ItemExpense> {
     return _groupItem();
   }
 
-  void setStateIfMounted(f) {
-    if (mounted) setState(f);
-  }
+  // void setStateIfMounted(f) {
+  //   if (mounted) setState(f);
+  // }
 
   Widget _groupItem() {
     return widget.listExpense.length > 0
         ? Theme(
             data: Theme.of(context).copyWith(
-                accentColor: Colors.white, unselectedWidgetColor: Colors.white),
-            child: ExpansionTile(
-              title: Text(
-                widget.title == null?"null" : "${widget.title} (đã chi: ${Utils().formatMoneyWithInt(_totalAmount())})",
-                style: defaultTextStyle,
-              ),
-              // initiallyExpanded: true,
-              collapsedBackgroundColor: Colors.amber,
-              backgroundColor: Colors.amber,
-              children: widget.listExpense
-                  .map((expense) => _itemExpense(expense))
-                  .toList(),
+              dividerColor: Colors.yellow,
+            ),
+            child: Stack(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 70,
+                    color: _getColorItem(),
+                  ),
+                ),
+                ExpansionTile(
+                  title: Text(
+                    widget.title == null
+                        ? "null"
+                        : "${widget.title} (đã chi: ${Utils().formatMoneyWithInt(_totalAmount())}) ${_contentRestAmount()}",
+                    style: defaultTextStyle.copyWith(
+                        fontSize: 16,
+                        color: widget.isCategory ? Colors.white : Colors.black),
+                  ),
+                  // initiallyExpanded: true,
+                  collapsedBackgroundColor: Colors.transparent,
+                  children: widget.listExpense
+                      .map((expense) => _itemExpense(expense))
+                      .toList(),
+                ),
+              ],
             ))
         : SizedBox();
+  }
+
+  Color _getColorItem() {
+    if (!widget.isCategory) return Colors.white;
+    int maxAmount = _getMaxAmountOfCategory();
+    int restAmount = _calculateRestAmount();
+    double amount50Percent = maxAmount / 2;
+    double amount30Percent = maxAmount * 30 / 100;
+    double amount10Percent = maxAmount * 10 / 100;
+
+    print(
+        "length data::::::::${widget.listExpense.length} --- title:::::${widget.title} ---- isCategory:::::${widget.isCategory}");
+    print("maxAmount:::$maxAmount");
+    print("restAmount:::$restAmount");
+    if (restAmount > amount50Percent) return Colors.green;
+    print("1:::::::::::");
+    if (restAmount > amount30Percent) return Colors.amber;
+    print("2:::::::::::");
+    if (restAmount > amount10Percent) return Colors.purple;
+    print("3:::::::::::");
+    return Colors.red;
+  }
+
+  int _getMaxAmountOfCategory() {
+    int maxAmount = 0;
+    for (Category category in InfoOfMonth.currentInfoOfMonth.category) {
+      if (category.name == widget.title) {
+        maxAmount = category.money;
+        break;
+      }
+    }
+    return maxAmount;
+  }
+
+  int _calculateRestAmount() {
+    if (!widget.isCategory) return 0;
+    int rest = _getMaxAmountOfCategory() - _totalAmount();
+    return rest;
+  }
+
+  String _contentRestAmount() {
+    if (!widget.isCategory) return "";
+    return "(còn lại ${Utils().formatMoneyWithInt(_calculateRestAmount())})";
   }
 
   Widget _itemExpense(Expense expense) {
@@ -83,6 +145,13 @@ class ItemExpenseState extends State<ItemExpense> {
             padding: EdgeInsets.only(left: 10),
             child: Text(
               "Tiêu đề: ${expense.category}",
+              style: defaultTextStyle,
+            ),
+          ),
+          Container(
+            padding: EdgeInsets.only(left: 10),
+            child: Text(
+              "Ngày: ${expense.date}",
               style: defaultTextStyle,
             ),
           ),

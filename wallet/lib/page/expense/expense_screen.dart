@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:wallet/firebase/firebase_database_manager.dart';
+import 'package:wallet/model/category.dart';
 import 'package:wallet/model/expense.dart';
+import 'package:wallet/model/info_of_month.dart';
+import 'package:wallet/page/home_screen/home_screen_controller.dart';
 import 'package:wallet/struct/base_stateful_widget.dart';
 import 'package:wallet/utils/my_style.dart';
 import 'package:wallet/utils/utils.dart';
@@ -116,8 +119,8 @@ class _ExpenseScreenState extends BaseStatefulWidgetState<ExpenseScreen> {
         return DropdownMenuItem<String>(
           value: value,
           child: new Text(
-            value,
-            style: defaultTextStyle,
+            "$value ${_getValueText(value)}",
+            style: defaultTextStyle.copyWith(color: _getColorItem(value)),
           ),
         );
       }).toList(),
@@ -139,5 +142,59 @@ class _ExpenseScreenState extends BaseStatefulWidgetState<ExpenseScreen> {
           Get.back();
           Get.back();
         });
+  }
+
+  Color _getColorItem(String value) {
+    print("_getColorItem:::::::::$value");
+    _calculateExpenseAmount();
+    int maxAmount = _getMaxAmountOfCategory(value);
+    int restAmount = _calculateRestAmount(value);
+    double amount50Percent = maxAmount / 2;
+    double amount30Percent = maxAmount * 30 / 100;
+    double amount10Percent = maxAmount * 10 / 100;
+
+    if (restAmount > amount50Percent) return Colors.green;
+    if (restAmount > amount30Percent) return Colors.amber;
+    if (restAmount > amount10Percent) return Colors.purple;
+    return Colors.red;
+  }
+
+  int _getMaxAmountOfCategory(String value) {
+    print("_getMaxAmountOfCategory");
+    int maxAmount = 0;
+    for (Category category in InfoOfMonth.currentInfoOfMonth.category) {
+      if (category.name == value) {
+        maxAmount = category.money;
+        break;
+      }
+    }
+    return maxAmount;
+  }
+
+  int _calculateRestAmount(String value) {
+    print(
+        "_calculateRestAmount value:::::::::::$value - length:::::::${mapAmountExpense.length}");
+    if (mapAmountExpense[value] == null) mapAmountExpense[value] = 0;
+    int rest = _getMaxAmountOfCategory(value) - mapAmountExpense[value];
+    return rest;
+  }
+
+  Map<String, int> mapAmountExpense = Map<String, int>();
+  _calculateExpenseAmount() {
+    mapAmountExpense.clear();
+    for (Expense expense
+        in Get.find<HomeScreenController>().listExpenseOfMonth) {
+      if (mapAmountExpense[expense.category] == null)
+        mapAmountExpense[expense.category] = 0;
+      mapAmountExpense[expense.category] += expense.total;
+      print(
+          "category::::::::::${expense.category} ---- amount:::::::::::::${mapAmountExpense[expense.category]}");
+    }
+  }
+
+  String _getValueText(String value) {
+    _calculateExpenseAmount();
+
+    return "(còn lại ${_calculateRestAmount(value)})";
   }
 }

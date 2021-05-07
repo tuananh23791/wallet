@@ -7,13 +7,8 @@ import 'package:wallet/utils/my_style.dart';
 import 'package:wallet/utils/strings.dart';
 import 'package:wallet/utils/utils.dart';
 import 'package:wallet/widgets/custom_button.dart';
-import 'package:wallet/widgets/custom_textfield.dart';
 import 'package:wallet/widgets/dialog_add_category.dart';
 
-import '../../firebase/firebase_database_manager.dart';
-import '../../model/category.dart';
-import '../../model/category.dart';
-import '../../model/info_of_month.dart';
 import '../../utils/utils.dart';
 
 class MonthlyWidget extends StatelessWidget {
@@ -31,15 +26,25 @@ class MonthlyWidget extends StatelessWidget {
   Widget total() {
     return Column(
       children: [
-        Text(
-          "Thu nhập trong tháng:",
-          style: defaultTextStyle,
-          textAlign: TextAlign.center,
+        GestureDetector(
+          onTap: () {
+            showDialogUpdateMoney(isSalary: true);
+          },
+          child: Text(
+            "Thu nhập trong tháng:",
+            style: defaultTextStyle,
+            textAlign: TextAlign.center,
+          ),
         ),
-        Obx(() => Text(
-              "${oCcy.format(Get.find<HomeScreenController>().totalSalary.value)} đ",
-              style: moneyTextStyle,
-              textAlign: TextAlign.center,
+        Obx(() => GestureDetector(
+              onTap: () {
+                showDialogUpdateMoney(isSalary: true);
+              },
+              child: Text(
+                "${oCcy.format(Get.find<HomeScreenController>().totalSalary.value)} đ",
+                style: moneyTextStyle,
+                textAlign: TextAlign.center,
+              ),
             )),
         SizedBox(
           height: 30,
@@ -56,15 +61,25 @@ class MonthlyWidget extends StatelessWidget {
         SizedBox(
           height: 30,
         ),
-        Text(
-          "Mục tiêu để dành trong tháng:",
-          style: defaultTextStyle,
-          textAlign: TextAlign.center,
+        GestureDetector(
+          onTap: () {
+            showDialogUpdateMoney(isSalary: false);
+          },
+          child: Text(
+            "Mục tiêu để dành trong tháng:",
+            style: defaultTextStyle,
+            textAlign: TextAlign.center,
+          ),
         ),
-        Obx(() => Text(
-              "${oCcy.format(Get.find<HomeScreenController>().targetSaveMoney.value)} đ",
-              style: moneyTextStyle,
-              textAlign: TextAlign.center,
+        Obx(() => GestureDetector(
+              onTap: () {
+                showDialogUpdateMoney(isSalary: false);
+              },
+              child: Text(
+                "${oCcy.format(Get.find<HomeScreenController>().targetSaveMoney.value)} đ",
+                style: moneyTextStyle,
+                textAlign: TextAlign.center,
+              ),
             )),
         SizedBox(
           height: 30,

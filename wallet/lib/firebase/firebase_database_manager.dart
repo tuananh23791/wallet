@@ -7,6 +7,7 @@ import 'package:wallet/model/category.dart';
 import 'package:wallet/model/expense.dart';
 import 'package:wallet/model/info_of_month.dart';
 import 'package:wallet/page/home_screen/home_screen_controller.dart';
+import 'package:wallet/utils/utils.dart';
 
 class FireBaseDatabaseManager {
   final _databaseReference = FirebaseDatabase.instance.reference();
@@ -47,7 +48,7 @@ class FireBaseDatabaseManager {
     Get.find<HomeScreenController>().listExpenseOfMonth.value.clear();
     List<dynamic> _listData = json.decode(value);
     for (var data in _listData) {
-      if(data != null){
+      if (data != null) {
         print("data ne::::::::$data");
         Expense expense = Expense.fromJson(data);
         print("expense ne::::::::${expense.content}");
@@ -62,6 +63,20 @@ class FireBaseDatabaseManager {
       String value = json.encode(event.snapshot.value["data"]);
       print("_listenerExpense me:::::::::::::$value");
       _calculateExpense(event.snapshot.value["data"]);
+    });
+  }
+
+  _listenInfoOfMonth() {
+    print("_listenInfoOfMonth:::::::::::::::::::::info_${Utils().getMonth()}");
+    databaseReference
+        .child("info_${Utils().getMonth()}")
+        .onValue
+        .listen((Event event) {
+      String data = json.encode(event.snapshot.value);
+      _readDataInfoOfMonth(data);
+      Get.find<HomeScreenController>().totalSaveMoney.value =
+          Get.find<HomeScreenController>().totalSalary.value -
+              Get.find<HomeScreenController>().totalAmountExpenseOfMonth.value;
     });
   }
 
@@ -154,23 +169,7 @@ class FireBaseDatabaseManager {
         String data = json.encode(snapshot.value);
         print(
             "getLastInfoOfMonth ne::::::::::::::$data - key:::::::::::::info_${listDateTime[listDateTime.length - 1]}");
-        InfoOfMonth infoOfMonth;
-        if (data == "null") {
-          print("day ne");
-          infoOfMonth = InfoOfMonth();
-          infoOfMonth.category = _listDefaultCategory();
-          infoOfMonth.totalSalary = 40000000;
-          infoOfMonth.targetSaveMoney = 20000000;
-        } else {
-          print("day ne2");
-          infoOfMonth = InfoOfMonth.fromJson(json.decode(data));
-        }
-        Get.find<HomeScreenController>().totalSalary.value =
-            infoOfMonth.totalSalary;
-        Get.find<HomeScreenController>().targetSaveMoney.value =
-            infoOfMonth.targetSaveMoney;
-        InfoOfMonth.currentInfoOfMonth = infoOfMonth;
-        print("getLastInfoOfMonth::::::::::::::${infoOfMonth.category}");
+        _listenInfoOfMonth();
         var df = DateFormat("MM-yyyy");
         String dateTime = df.format(DateTime.now());
         if (!value.contains(dateTime)) {
@@ -179,6 +178,27 @@ class FireBaseDatabaseManager {
         _loadDataWithMonth(month);
       });
     });
+  }
+
+  _readDataInfoOfMonth(String data) {
+    print("_readDataInfoOfMonth:::::::::::::::::::::");
+    InfoOfMonth infoOfMonth;
+    if (data == "null") {
+      print("day ne");
+      infoOfMonth = InfoOfMonth();
+      infoOfMonth.category = _listDefaultCategory();
+      infoOfMonth.totalSalary = 40000000;
+      infoOfMonth.targetSaveMoney = 20000000;
+    } else {
+      print("day ne2");
+      infoOfMonth = InfoOfMonth.fromJson(json.decode(data));
+    }
+    Get.find<HomeScreenController>().totalSalary.value =
+        infoOfMonth.totalSalary;
+    Get.find<HomeScreenController>().targetSaveMoney.value =
+        infoOfMonth.targetSaveMoney;
+    InfoOfMonth.currentInfoOfMonth = infoOfMonth;
+    print("getLastInfoOfMonth::::::::::::::${infoOfMonth.category}");
   }
 
   List<Category> _listDefaultCategory() {
