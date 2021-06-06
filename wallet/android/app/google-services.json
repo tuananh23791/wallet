@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "945062370795",
+    "firebase_url": "https://wallet-665f6-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "wallet-665f6",
+    "storage_bucket": "wallet-665f6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:945062370795:android:b58007ce24f288713e8dae",
+        "android_client_info": {
+          "package_name": "com.qed.wallet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "945062370795-7mciq03leqeggrc7erq0id264g8h5340.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDvcHn8moWNTan9fAyIoiDNeTrYyK6H08"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "945062370795-7mciq03leqeggrc7erq0id264g8h5340.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
